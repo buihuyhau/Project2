@@ -1,100 +1,122 @@
 ﻿using UnityEngine;
+using UnityEngine.Tilemaps;
 
-public class MapGenerator : MonoBehaviour
+namespace Assets.Script
 {
-    // Các thông số của bản đồ
-    public int mapHeight = 18; // Số hàng của bản đồ
-    public int mapWidth = 32;  // Số cột của bản đồ
-    public float tileHeight = 1f; // Chiều cao mỗi ô trong bản đồ
-    public float tileWidth = 1f;  // Chiều rộng mỗi ô trong bản đồ
-
-    public GameObject destructibleTilePrefab;  // Prefab cho ô phá được
-    public GameObject indestructibleImpassableTilePrefab; // Prefab cho ô không phá được và không đi qua được
-    public GameObject indestructiblePassableTilePrefab; // Prefab cho ô không phá được nhưng có thể đi qua được
-    public GameObject borderTilePrefab;  // Prefab cho viền của bản đồ
-
-    private int[,] mapMatrix; // Ma trận lưu trữ trạng thái các ô
-
-    private void Start()
+    public class MapGenerator : MonoBehaviour
     {
-        GenerateMap();  // Tạo bản đồ khi trò chơi bắt đầu
-        CenterCamera();  // Căn giữa camera khi khởi tạo
-    }
+        private const int EmptyTileValue = 0;
+        private const int RandomTileRange = 3;
 
-    private void GenerateMap()
-    {
-        // Khởi tạo ma trận (18x32) với giá trị mặc định là ô không phá được và không thể đi qua
-        mapMatrix = new int[mapHeight, mapWidth];
+        public Tile block;
+        public Tile brick;
+        public RuleTile dust; // Changed to RuleTile
+        public Tilemap tilemap;
 
-        // Sinh ma trận với các loại ô:
-        // 0 - Ô phá được
-        // 1 - Ô không phá được và không đi qua được
-        // 2 - Ô không phá được nhưng có thể đi qua
-        // 3 - Viền của bản đồ (không phá được và không đi qua được)
-
-        for (int i = 0; i < mapHeight; i++)
+        private void Start()
         {
-            for (int j = 0; j < mapWidth; j++)
+            // Sinh bản đồ ngẫu nhiên
+            GenerateRandomMap();
+
+            // Vẽ bản đồ lên Tilemap
+            RenderMap();
+
+            // Căn chỉnh vị trí bản đồ với trung tâm camera
+            SetMapToCenter();
+        }
+
+        private void GenerateRandomMap()
+        {
+            for (int i = 0; i < MapMatrix.mapHeight; i++)
             {
-                if (i == 0 || i == mapHeight - 1 || j == 0 || j == mapWidth - 1)
+                for (int j = 0; j < MapMatrix.mapWidth; j++)
                 {
-                    mapMatrix[i, j] = 3; // Viền
+                    if (IsBorderCell(i, j))
+                    {
+                        MapMatrix.SetCellValue(i, j, 1); // Viền là ô phá được
+                    }
+                    else
+                    {
+                        // Ensure clusters of tiles are formed
+                        int value = Random.Range(EmptyTileValue, RandomTileRange);
+                        if (value == 3 && !IsClusterFormed(i, j))
+                        {
+                            value = Random.Range(EmptyTileValue, 3); // Re-roll if cluster is not formed
+                        }
+                        MapMatrix.SetCellValue(i, j, value);
+                    }
                 }
-                else
+            }
+
+            // Đặt các ô trống tại các vị trí xác định
+            MapMatrix.SetCellValue(1, 1, EmptyTileValue);
+            MapMatrix.SetCellValue(1, 2, EmptyTileValue);
+            MapMatrix.SetCellValue(2, 1, EmptyTileValue);
+        }
+        
+        private bool IsBorderCell(int i, int j)
+        {
+            return i == 0 || i == MapMatrix.mapHeight - 1 || j == 0 || j == MapMatrix.mapWidth - 1;
+        }
+
+        private bool IsClusterFormed(int i, int j)
+        {
+            int clusterSize = 0;
+            if (i > 0 && MapMatrix.GetCellValue(i - 1, j) == 3) clusterSize++;
+            if (i < MapMatrix.mapHeight - 1 && MapMatrix.GetCellValue(i + 1, j) == 3) clusterSize++;
+            if (j > 0 && MapMatrix.GetCellValue(i, j - 1) == 3) clusterSize++;
+            if (j < MapMatrix.mapWidth - 1 && MapMatrix.GetCellValue(i, j + 1) == 3) clusterSize++;
+            return clusterSize >= 3; // Ensure at least 3 neighboring tiles are of the same type
+        }
+
+        private void RenderMap()
+        {
+            for (int i = 0; i < MapMatrix.mapHeight; i++)
+            {
+                for (int j = 0; j < MapMatrix.mapWidth; j++)
                 {
-                    mapMatrix[i, j] = Random.Range(0, 3); // Sinh ô ngẫu nhiên: 0, 1, hoặc 2
+                    Vector3Int tilePosition = new Vector3Int(j, MapMatrix.mapHeight - 1 - i, 0);
+                    TileBase tile = GetTileFromMatrix(i, j);
+
+                    tilemap.SetTile(tilePosition, tile);
                 }
+            }
+
+            // Refresh the tilemap to ensure RuleTile rules are applied
+            tilemap.RefreshAllTiles();
+        }
+
+        private TileBase GetTileFromMatrix(int i, int j)
+        {
+            switch (MapMatrix.GetCellValue(i, j))
+            {
+                case 1:
+                    return block;
+                case 2:
+                    return brick;
+                case 3:
+                    return dust; // RuleTile is a type of TileBase
+                default:
+                    return null;
             }
         }
 
-        // Tạo các ô trên bản đồ dựa vào ma trận
-        for (int i = 0; i < mapHeight; i++)
+        // Phương thức để căn chỉnh bản đồ về trung tâm camera
+        private void SetMapToCenter()
         {
-            for (int j = 0; j < mapWidth; j++)
-            {
-                Vector3 position = new Vector3(j * tileWidth, i * tileHeight, 0); // Tính vị trí của mỗi ô
+            // Lấy thông tin từ Camera chính (Main Camera)
+            Camera mainCamera = Camera.main;
 
-                GameObject tilePrefab = null;
+            // Tính toán vị trí trung tâm của bản đồ
+            Vector3 mapCenter = new Vector3(MapMatrix.mapWidth / 2f, MapMatrix.mapHeight / 2f, 0f);
 
-                // Chọn prefab tùy theo giá trị trong ma trận
-                switch (mapMatrix[i, j])
-                {
-                    case 0:
-                        tilePrefab = destructibleTilePrefab;
-                        break;
-                    case 1:
-                        tilePrefab = indestructibleImpassableTilePrefab;
-                        break;
-                    case 2:
-                        tilePrefab = indestructiblePassableTilePrefab;
-                        break;
-                    case 3:
-                        tilePrefab = borderTilePrefab;
-                        break;
-                }
+            // Tính toán vị trí của Camera
+            Vector3 cameraPos = mainCamera.transform.position;
 
-                // Instantiate (tạo) ô tại vị trí đã tính toán
-                if (tilePrefab != null)
-                {
-                    Instantiate(tilePrefab, position, Quaternion.identity);
-                }
-            }
+            // Di chuyển bản đồ sao cho trung tâm của nó khớp với trung tâm của Camera
+            Vector3 mapPosition = new Vector3(cameraPos.x, cameraPos.y, 0);
+            tilemap.transform.position = mapPosition - mapCenter * tilemap.cellSize.x;
         }
-    }
-
-    private void CenterCamera()
-    {
-        // Tính toán tỷ lệ khung hình của màn hình
-        float aspectRatio = (float)Screen.width / Screen.height;
-
-        // Điều chỉnh camera để hiển thị toàn bộ bản đồ
-        Camera.main.orthographicSize = (mapHeight * tileHeight) / 2f;
-
-        // Căn giữa camera trên bản đồ
-        Camera.main.transform.position = new Vector3(
-            (mapWidth * tileWidth) / 2f,  // Vị trí trung tâm trên trục X
-            (mapHeight * tileHeight) / 2f, // Vị trí trung tâm trên trục Y
-            -10f                          // Vị trí của camera trên trục Z (giữ camera ở phía trước bản đồ)
-        );
     }
 }
+
