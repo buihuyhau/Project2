@@ -6,27 +6,30 @@ namespace Assets.Script
     public class MapGenerator : MonoBehaviour
     {
         private const int EmptyTileValue = 0;
-        private const int RandomTileRange = 3;
 
         public Tile block;
         public Tile brick;
-        public RuleTile dust; // Changed to RuleTile
+        public RuleTile dust;
         public Tilemap tilemap;
 
         private void Start()
         {
-            // Sinh bản đồ ngẫu nhiên
             GenerateRandomMap();
-
-            // Vẽ bản đồ lên Tilemap
             RenderMap();
-
-            // Căn chỉnh vị trí bản đồ với trung tâm camera
             SetMapToCenter();
         }
 
         private void GenerateRandomMap()
         {
+            // Đặt các ô trống tại các vị trí xác định
+            MapMatrix.SetCellValue(1, 1, EmptyTileValue);
+            MapMatrix.SetCellValue(1, 2, EmptyTileValue);
+            MapMatrix.SetCellValue(2, 1, EmptyTileValue);
+
+            // Tạo các cụm dust ngẫu nhiên
+            CreateRandomDustClusters(5); // Tạo 5 cụm dust ngẫu nhiên
+
+            // Sinh ngẫu nhiên các ô còn lại
             for (int i = 0; i < MapMatrix.mapHeight; i++)
             {
                 for (int j = 0; j < MapMatrix.mapWidth; j++)
@@ -35,38 +38,103 @@ namespace Assets.Script
                     {
                         MapMatrix.SetCellValue(i, j, 1); // Viền là ô phá được
                     }
-                    else
+                    else if (MapMatrix.GetCellValue(i, j) == EmptyTileValue)
                     {
-                        // Ensure clusters of tiles are formed
-                        int value = Random.Range(EmptyTileValue, RandomTileRange);
-                        if (value == 3 && !IsClusterFormed(i, j))
-                        {
-                            value = Random.Range(EmptyTileValue, 3); // Re-roll if cluster is not formed
-                        }
+                        int value = Random.Range(EmptyTileValue, 3); // Tránh sinh ra dust ngẫu nhiên
                         MapMatrix.SetCellValue(i, j, value);
                     }
                 }
             }
-
-            // Đặt các ô trống tại các vị trí xác định
-            MapMatrix.SetCellValue(1, 1, EmptyTileValue);
-            MapMatrix.SetCellValue(1, 2, EmptyTileValue);
-            MapMatrix.SetCellValue(2, 1, EmptyTileValue);
         }
-        
+
+        private void CreateRandomDustClusters(int clusterCount)
+        {
+            for (int k = 0; k < clusterCount; k++)
+            {
+                int shape = Random.Range(0, 3); // 0: Hình chữ nhật, 1: Hình vuông, 2: Hình chữ L
+
+                int clusterWidth = 0;
+                int clusterHeight = 0;
+
+                switch (shape)
+                {
+                    case 0: // Hình chữ nhật
+                        clusterWidth = 2;
+                        clusterHeight = 3;
+                        break;
+                    case 1: // Hình vuông
+                        clusterWidth = 2;
+                        clusterHeight = 2;
+                        break;
+                    case 2: // Hình chữ L
+                        clusterWidth = 4; // Hình chữ L có chiều rộng tối đa là 4
+                        clusterHeight = 4; // Hình chữ L có chiều cao tối đa là 4
+                        break;
+                }
+
+                // Điều chỉnh phạm vi để tránh vượt quá ranh giới bản đồ
+                int startX = Random.Range(1, MapMatrix.mapHeight - clusterHeight - 1);
+                int startY = Random.Range(1, MapMatrix.mapWidth - clusterWidth - 1);
+
+                switch (shape)
+                {
+                    case 0: // Hình chữ nhật
+                        CreateDustCluster(startX, startY, 2, 3);
+                        break;
+                    case 1: // Hình vuông
+                        CreateDustCluster(startX, startY, 2, 2);
+                        break;
+                    case 2: // Hình chữ L
+                        CreateDustLShape(startX, startY);
+                        break;
+                }
+            }
+        }
+
+        private void CreateDustCluster(int startX, int startY, int width, int height)
+        {
+            for (int i = startX; i < startX + width; i++)
+            {
+                for (int j = startY; j < startY + height; j++)
+                {
+                    MapMatrix.SetCellValue(i, j, 3); // Đặt giá trị 3 cho dust
+                }
+            }
+        }
+
+        private void CreateDustLShape(int startX, int startY)
+        {
+            // Tạo phần thân chính của hình chữ L (hình vuông 2x2)
+            for (int i = startX; i < startX + 2; i++)
+            {
+                for (int j = startY; j < startY + 2; j++)
+                {
+                    MapMatrix.SetCellValue(i, j, 3); // Đặt giá trị 3 cho dust
+                }
+            }
+
+            // Thêm nhánh dọc của hình chữ L với độ rộng 2 ô
+            for (int i = startX + 2; i < startX + 4; i++)
+            {
+                for (int j = startY; j < startY + 2; j++)
+                {
+                    MapMatrix.SetCellValue(i, j, 3);
+                }
+            }
+
+            // Thêm nhánh ngang của hình chữ L với độ rộng 2 ô
+            for (int i = startX; i < startX + 2; i++)
+            {
+                for (int j = startY + 2; j < startY + 4; j++)
+                {
+                    MapMatrix.SetCellValue(i, j, 3);
+                }
+            }
+        }
+
         private bool IsBorderCell(int i, int j)
         {
             return i == 0 || i == MapMatrix.mapHeight - 1 || j == 0 || j == MapMatrix.mapWidth - 1;
-        }
-
-        private bool IsClusterFormed(int i, int j)
-        {
-            int clusterSize = 0;
-            if (i > 0 && MapMatrix.GetCellValue(i - 1, j) == 3) clusterSize++;
-            if (i < MapMatrix.mapHeight - 1 && MapMatrix.GetCellValue(i + 1, j) == 3) clusterSize++;
-            if (j > 0 && MapMatrix.GetCellValue(i, j - 1) == 3) clusterSize++;
-            if (j < MapMatrix.mapWidth - 1 && MapMatrix.GetCellValue(i, j + 1) == 3) clusterSize++;
-            return clusterSize >= 3; // Ensure at least 3 neighboring tiles are of the same type
         }
 
         private void RenderMap()
@@ -82,7 +150,7 @@ namespace Assets.Script
                 }
             }
 
-            // Refresh the tilemap to ensure RuleTile rules are applied
+            // Làm mới tilemap để đảm bảo các quy tắc của RuleTile được áp dụng
             tilemap.RefreshAllTiles();
         }
 
@@ -95,25 +163,17 @@ namespace Assets.Script
                 case 2:
                     return brick;
                 case 3:
-                    return dust; // RuleTile is a type of TileBase
+                    return dust; // RuleTile là một loại của TileBase
                 default:
                     return null;
             }
         }
 
-        // Phương thức để căn chỉnh bản đồ về trung tâm camera
         private void SetMapToCenter()
         {
-            // Lấy thông tin từ Camera chính (Main Camera)
             Camera mainCamera = Camera.main;
-
-            // Tính toán vị trí trung tâm của bản đồ
             Vector3 mapCenter = new Vector3(MapMatrix.mapWidth / 2f, MapMatrix.mapHeight / 2f, 0f);
-
-            // Tính toán vị trí của Camera
             Vector3 cameraPos = mainCamera.transform.position;
-
-            // Di chuyển bản đồ sao cho trung tâm của nó khớp với trung tâm của Camera
             Vector3 mapPosition = new Vector3(cameraPos.x, cameraPos.y, 0);
             tilemap.transform.position = mapPosition - mapCenter * tilemap.cellSize.x;
         }

@@ -1190,9 +1190,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418468e8a2c3a7d4997473d1c3b9f229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destructibleTile: {fileID: 11400000, guid: 96d1efde55d175a419f1e45087862b43, type: 2}
-  indestructibleImpassableTile: {fileID: 11400000, guid: 15a93c1dde1367442ae1f15d3c801d7c, type: 2}
-  indestructiblePassableTile: {fileID: 11400000, guid: 2cb07d9e796de334c87021da99b89342, type: 2}
+  block: {fileID: 11400000, guid: 96d1efde55d175a419f1e45087862b43, type: 2}
+  brick: {fileID: 11400000, guid: 15a93c1dde1367442ae1f15d3c801d7c, type: 2}
+  dust: {fileID: 11400000, guid: 2cb07d9e796de334c87021da99b89342, type: 2}
   tilemap: {fileID: 1219428555}
 --- !u!1 &1016687424
 GameObject:
