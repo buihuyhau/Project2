@@ -9,7 +9,8 @@ namespace Assets.Script
 
         public Tile block;
         public Tile brick;
-        public RuleTile dust;
+        public RuleTile bush;
+        public RuleTile water;
         public Tilemap tilemap;
 
         private void Start()
@@ -26,8 +27,11 @@ namespace Assets.Script
             MapMatrix.SetCellValue(1, 2, EmptyTileValue);
             MapMatrix.SetCellValue(2, 1, EmptyTileValue);
 
-            // Tạo các cụm dust ngẫu nhiên
-            CreateRandomDustClusters(5); // Tạo 5 cụm dust ngẫu nhiên
+            // Tạo các cụm bush ngẫu nhiên
+            CreateRandomClusters(3, 2, 3, 3); // Tạo 3 cụm bush ngẫu nhiên
+
+            // Tạo các cụm water ngẫu nhiên
+            CreateRandomClusters(2, 3, 4, 4); // Tạo 2 cụm water ngẫu nhiên với kích thước lớn hơn
 
             // Sinh ngẫu nhiên các ô còn lại
             for (int i = 0; i < MapMatrix.mapHeight; i++)
@@ -40,14 +44,14 @@ namespace Assets.Script
                     }
                     else if (MapMatrix.GetCellValue(i, j) == EmptyTileValue)
                     {
-                        int value = Random.Range(EmptyTileValue, 3); // Tránh sinh ra dust ngẫu nhiên
+                        int value = Random.Range(EmptyTileValue, 3); // Tránh sinh ra bush và water ngẫu nhiên
                         MapMatrix.SetCellValue(i, j, value);
                     }
                 }
             }
         }
 
-        private void CreateRandomDustClusters(int clusterCount)
+        private void CreateRandomClusters(int clusterCount, int minSize, int maxSize, int value)
         {
             for (int k = 0; k < clusterCount; k++)
             {
@@ -59,12 +63,12 @@ namespace Assets.Script
                 switch (shape)
                 {
                     case 0: // Hình chữ nhật
-                        clusterWidth = 2;
-                        clusterHeight = 3;
+                        clusterWidth = Random.Range(minSize, maxSize);
+                        clusterHeight = Random.Range(minSize, maxSize);
                         break;
                     case 1: // Hình vuông
-                        clusterWidth = 2;
-                        clusterHeight = 2;
+                        clusterWidth = Random.Range(minSize, maxSize);
+                        clusterHeight = clusterWidth;
                         break;
                     case 2: // Hình chữ L
                         clusterWidth = 4; // Hình chữ L có chiều rộng tối đa là 4
@@ -79,37 +83,35 @@ namespace Assets.Script
                 switch (shape)
                 {
                     case 0: // Hình chữ nhật
-                        CreateDustCluster(startX, startY, 2, 3);
-                        break;
                     case 1: // Hình vuông
-                        CreateDustCluster(startX, startY, 2, 2);
+                        CreateCluster(startX, startY, clusterWidth, clusterHeight, value);
                         break;
                     case 2: // Hình chữ L
-                        CreateDustLShape(startX, startY);
+                        CreateLShape(startX, startY, value);
                         break;
                 }
             }
         }
 
-        private void CreateDustCluster(int startX, int startY, int width, int height)
+        private void CreateCluster(int startX, int startY, int width, int height, int value)
         {
             for (int i = startX; i < startX + width; i++)
             {
                 for (int j = startY; j < startY + height; j++)
                 {
-                    MapMatrix.SetCellValue(i, j, 3); // Đặt giá trị 3 cho dust
+                    MapMatrix.SetCellValue(i, j, value); // Đặt giá trị cho bush hoặc water
                 }
             }
         }
 
-        private void CreateDustLShape(int startX, int startY)
+        private void CreateLShape(int startX, int startY, int value)
         {
             // Tạo phần thân chính của hình chữ L (hình vuông 2x2)
             for (int i = startX; i < startX + 2; i++)
             {
                 for (int j = startY; j < startY + 2; j++)
                 {
-                    MapMatrix.SetCellValue(i, j, 3); // Đặt giá trị 3 cho dust
+                    MapMatrix.SetCellValue(i, j, value); // Đặt giá trị cho bush hoặc water
                 }
             }
 
@@ -118,7 +120,7 @@ namespace Assets.Script
             {
                 for (int j = startY; j < startY + 2; j++)
                 {
-                    MapMatrix.SetCellValue(i, j, 3);
+                    MapMatrix.SetCellValue(i, j, value);
                 }
             }
 
@@ -127,7 +129,7 @@ namespace Assets.Script
             {
                 for (int j = startY + 2; j < startY + 4; j++)
                 {
-                    MapMatrix.SetCellValue(i, j, 3);
+                    MapMatrix.SetCellValue(i, j, value);
                 }
             }
         }
@@ -163,7 +165,9 @@ namespace Assets.Script
                 case 2:
                     return brick;
                 case 3:
-                    return dust; // RuleTile là một loại của TileBase
+                    return bush; // RuleTile là một loại của TileBase
+                case 4:
+                    return water; // RuleTile là một loại của TileBase
                 default:
                     return null;
             }
