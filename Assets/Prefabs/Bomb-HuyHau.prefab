@@ -133,7 +133,7 @@ MonoBehaviour:
   - {fileID: 1489818613, guid: a280ae32d6b1fab4383603e16688f76d, type: 3}
   - {fileID: 779486506, guid: a280ae32d6b1fab4383603e16688f76d, type: 3}
   animationTime: 0.25
-  loop: 0
+  loop: 1
   idle: 0
 --- !u!58 &5093200699303457213
 CircleCollider2D:

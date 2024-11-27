@@ -1,16 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Assets.Script
 {
     public class MapGenerator : MonoBehaviour
     {
-        private const int EmptyTileValue = 0;
-
-        public Tile block;
-        public Tile brick;
-        public RuleTile bush;
-        public RuleTile water;
+        public Tile blockTile;
+        public Tile brickTile;
+        public RuleTile bushTile;
+        public RuleTile waterTile;
         public Tilemap tilemap;
 
         private void Start()
@@ -22,72 +21,95 @@ namespace Assets.Script
 
         private void GenerateRandomMap()
         {
-            // Đặt các ô trống tại các vị trí xác định
-            MapMatrix.SetCellValue(1, 1, EmptyTileValue);
-            MapMatrix.SetCellValue(1, 2, EmptyTileValue);
-            MapMatrix.SetCellValue(2, 1, EmptyTileValue);
+            CreateBush(3, 2, 4); // Create 3 random bush clusters
 
-            // Tạo các cụm bush ngẫu nhiên
-            CreateRandomClusters(3, 2, 3, 3); // Tạo 3 cụm bush ngẫu nhiên
+            CreatePuddle(2, 2, 4); // Create 2 random water clusters
 
-            // Tạo các cụm water ngẫu nhiên
-            CreateRandomClusters(2, 3, 4, 4); // Tạo 2 cụm water ngẫu nhiên với kích thước lớn hơn
+            CreateBorders();// Generate border tiles
 
-            // Sinh ngẫu nhiên các ô còn lại
-            for (int i = 0; i < MapMatrix.mapHeight; i++)
+            // Randomly generate the remaining tiles
+            for (int i = 1; i < MapMatrix.mapHeight -1; i++)
             {
-                for (int j = 0; j < MapMatrix.mapWidth; j++)
+                for (int j = 1; j < MapMatrix.mapWidth - 1; j++)
                 {
-                    if (IsBorderCell(i, j))
+                    if (MapMatrix.GetCellValue(i, j) == (int)TileTypes.Empty)
                     {
-                        MapMatrix.SetCellValue(i, j, 1); // Viền là ô phá được
-                    }
-                    else if (MapMatrix.GetCellValue(i, j) == EmptyTileValue)
-                    {
-                        int value = Random.Range(EmptyTileValue, 3); // Tránh sinh ra bush và water ngẫu nhiên
+                        int value = Random.Range((int)TileTypes.Empty, (int)TileTypes.Brick + 1); // Avoid spawning bush and water randomly
                         MapMatrix.SetCellValue(i, j, value);
                     }
                 }
             }
+            // Set empty tiles at specific positions
+            MapMatrix.SetCellValue(1, 1, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(1, 2, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(2, 1, (int)TileTypes.Empty);
+
         }
 
-        private void CreateRandomClusters(int clusterCount, int minSize, int maxSize, int value)
+        private void CreateBorders()
         {
+            for (int i = 0; i < MapMatrix.mapHeight; i++)
+            {            
+                MapMatrix.SetCellValue(i, 0, (int)TileTypes.Block);
+                MapMatrix.SetCellValue(i, MapMatrix.mapWidth - 1, (int)TileTypes.Block);
+            } 
+            
+            for (int j = 1; j < MapMatrix.mapWidth - 1; j++)
+            {
+                MapMatrix.SetCellValue(0, j, (int)TileTypes.Block);
+                MapMatrix.SetCellValue(MapMatrix.mapHeight - 1, j, (int)TileTypes.Block);
+            }
+        }
+
+
+        private void CreateBush(int clusterCount, int minSize, int maxSize)
+        {
+            CreateRandomClusters(clusterCount, minSize, maxSize, (int)TileTypes.Bush);
+        }
+
+        private void CreatePuddle(int clusterCount, int minSize, int maxSize)
+        {
+            CreateRandomClusters(clusterCount, minSize, maxSize, (int)TileTypes.Water);
+        }
+
+        private void CreateRandomClusters(int clusterCount, int minSize, int maxSize, int TileTypes)
+        {
+            List<Vector2Int> clusterPositions = new List<Vector2Int>();
+
             for (int k = 0; k < clusterCount; k++)
             {
-                int shape = Random.Range(0, 3); // 0: Hình chữ nhật, 1: Hình vuông, 2: Hình chữ L
+                int shape = Random.Range(0, 2); // 0: Rectangle, 1: L-Shape
+                int clusterWidth = Random.Range(minSize, maxSize);
+                int clusterHeight = Random.Range(minSize, maxSize);
 
-                int clusterWidth = 0;
-                int clusterHeight = 0;
+                int startX, startY;
+                bool validPosition;
+
+                do
+                {
+                    validPosition = true;
+                    startX = Random.Range(4, MapMatrix.mapHeight - clusterHeight - 4);
+                    startY = Random.Range(4, MapMatrix.mapWidth - clusterWidth - 4);
+
+                    foreach (var pos in clusterPositions)
+                    {
+                        if (Vector2Int.Distance(new Vector2Int(startX, startY), pos) < Mathf.Max(clusterWidth, clusterHeight))
+                        {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                } while (!validPosition);
+
+                clusterPositions.Add(new Vector2Int(startX, startY));
 
                 switch (shape)
                 {
-                    case 0: // Hình chữ nhật
-                        clusterWidth = Random.Range(minSize, maxSize);
-                        clusterHeight = Random.Range(minSize, maxSize);
+                    case 0: // Rectangle
+                        CreateCluster(startX, startY, clusterWidth, clusterHeight, TileTypes);
                         break;
-                    case 1: // Hình vuông
-                        clusterWidth = Random.Range(minSize, maxSize);
-                        clusterHeight = clusterWidth;
-                        break;
-                    case 2: // Hình chữ L
-                        clusterWidth = 4; // Hình chữ L có chiều rộng tối đa là 4
-                        clusterHeight = 4; // Hình chữ L có chiều cao tối đa là 4
-                        break;
-                }
-
-                // Điều chỉnh phạm vi để tránh vượt quá ranh giới bản đồ
-                int startX = Random.Range(1, MapMatrix.mapHeight - clusterHeight - 1);
-                int startY = Random.Range(1, MapMatrix.mapWidth - clusterWidth - 1);
-
-                switch (shape)
-                {
-                    case 0: // Hình chữ nhật
-                    case 1: // Hình vuông
-                        CreateCluster(startX, startY, clusterWidth, clusterHeight, value);
-                        break;
-                    case 2: // Hình chữ L
-                        CreateLShape(startX, startY, value);
+                    case 1: // L-Shape
+                        CreateLShape(startX, startY, TileTypes);
                         break;
                 }
             }
@@ -99,45 +121,19 @@ namespace Assets.Script
             {
                 for (int j = startY; j < startY + height; j++)
                 {
-                    MapMatrix.SetCellValue(i, j, value); // Đặt giá trị cho bush hoặc water
+                    MapMatrix.SetCellValue(i, j, value); // Set TileTypes for bush or water
                 }
             }
         }
 
         private void CreateLShape(int startX, int startY, int value)
         {
-            // Tạo phần thân chính của hình chữ L (hình vuông 2x2)
-            for (int i = startX; i < startX + 2; i++)
-            {
-                for (int j = startY; j < startY + 2; j++)
-                {
-                    MapMatrix.SetCellValue(i, j, value); // Đặt giá trị cho bush hoặc water
-                }
-            }
-
-            // Thêm nhánh dọc của hình chữ L với độ rộng 2 ô
-            for (int i = startX + 2; i < startX + 4; i++)
-            {
-                for (int j = startY; j < startY + 2; j++)
-                {
-                    MapMatrix.SetCellValue(i, j, value);
-                }
-            }
-
-            // Thêm nhánh ngang của hình chữ L với độ rộng 2 ô
-            for (int i = startX; i < startX + 2; i++)
-            {
-                for (int j = startY + 2; j < startY + 4; j++)
-                {
-                    MapMatrix.SetCellValue(i, j, value);
-                }
-            }
+            // Create the vertical part of the L-shape
+            CreateCluster(startX, startY, Random.Range(2, 6), 2, value);
+            // Create the horizontal part of the L-shape
+            CreateCluster(startX + 2, startY-2,  2, Random.Range(2, 6), value);
         }
 
-        private bool IsBorderCell(int i, int j)
-        {
-            return i == 0 || i == MapMatrix.mapHeight - 1 || j == 0 || j == MapMatrix.mapWidth - 1;
-        }
 
         private void RenderMap()
         {
@@ -146,28 +142,25 @@ namespace Assets.Script
                 for (int j = 0; j < MapMatrix.mapWidth; j++)
                 {
                     Vector3Int tilePosition = new Vector3Int(j, MapMatrix.mapHeight - 1 - i, 0);
-                    TileBase tile = GetTileFromMatrix(i, j);
-
-                    tilemap.SetTile(tilePosition, tile);
+                    tilemap.SetTile(tilePosition, GetTileFromMatrix(i, j));
                 }
             }
 
-            // Làm mới tilemap để đảm bảo các quy tắc của RuleTile được áp dụng
-            tilemap.RefreshAllTiles();
+            tilemap.RefreshAllTiles(); // Refresh tilemap to apply RuleTile rules
         }
 
         private TileBase GetTileFromMatrix(int i, int j)
         {
-            switch (MapMatrix.GetCellValue(i, j))
+            switch ((TileTypes)MapMatrix.GetCellValue(i, j))
             {
-                case 1:
-                    return block;
-                case 2:
-                    return brick;
-                case 3:
-                    return bush; // RuleTile là một loại của TileBase
-                case 4:
-                    return water; // RuleTile là một loại của TileBase
+                case TileTypes.Block:
+                    return blockTile;
+                case TileTypes.Brick:
+                    return brickTile;
+                case TileTypes.Bush:
+                    return bushTile;
+                case TileTypes.Water:
+                    return waterTile;
                 default:
                     return null;
             }
