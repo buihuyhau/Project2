@@ -85,32 +85,31 @@ public class BombController : MonoBehaviour
 
         position += direction;
 
-        // Chuyển đổi tọa độ từ Tilemap sang ma trận (góc trên bên trái)
         Vector3Int cell = destructibleTiles.WorldToCell(position);
+        int matrixY = MapMatrix.mapHeight - cell.y - 1;
+        int cellValue = MapMatrix.GetCellValue(matrixY, cell.x);
 
-        // Lấy tọa độ y của Tilemap, nhưng điều chỉnh sao cho phù hợp với ma trận (góc trên bên trái)
-        int matrixY = MapMatrix.mapHeight - cell.y - 1; // Chuyển đổi tọa độ Y
-
-        // Kiểm tra giá trị của ô trong ma trận
-        int cellValue = MapMatrix.GetCellValue(matrixY, cell.x); // Lấy giá trị ô từ ma trận
-
-        // Kiểm tra nếu ô không phải null và giá trị không phải là 1 (có thể phá hủy)
-        if (cellValue != 1) // Ví dụ: 1 là ô không thể phá hủy
+        // If the cell is a block, stop the explosion
+        if ((TileTypes)cellValue == TileTypes.Block)
         {
-            // Tạo hiệu ứng vụ nổ tại ô có thể phá hủy
-            Explosion explosion = Instantiate(explosionPrefab, position, Quaternion.identity);
-            explosion.SetActiveRenderer(length > 1 ? explosion.middle : explosion.end);
-            explosion.SetDirection(direction);
-            explosion.DestroyAfter(explosionDuration);
-
-            // Cập nhật ma trận (thay thế giá trị trong ma trận)
-            MapMatrix.SetCellValue(matrixY, cell.x, 0); // Cập nhật giá trị ô trong ma trận (ví dụ: đổi thành 0)
-
-            // Xóa ô trong Tilemap
-            ClearDestructible(position);
+            return;
         }
 
-        // Tiếp tục nổ ở các ô phía sau trong cùng hướng
+        // Create explosion effect
+        Explosion explosion = Instantiate(explosionPrefab, position, Quaternion.identity);
+        explosion.SetActiveRenderer(length > 1 ? explosion.middle : explosion.end);
+        explosion.SetDirection(direction);
+        explosion.DestroyAfter(explosionDuration);
+
+        // If the cell is a brick, destroy it
+        if ((TileTypes)cellValue == TileTypes.Brick)
+        {
+            MapMatrix.SetCellValue(matrixY, cell.x, (int)TileTypes.Empty);
+            ClearDestructible(position);
+            return; // Stop the explosion after destroying a brick
+        }
+
+        // Continue the explosion
         ExplodeInDirection(position, direction, length - 1);
     }
 

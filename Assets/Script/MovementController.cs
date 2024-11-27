@@ -9,12 +9,6 @@ public class MovementController : MonoBehaviour
     public Joystick movermentJoystick;
 
 
-    //[Header("Input")]
-    //public KeyCode inputUp = KeyCode.W;
-    //public KeyCode inputDown = KeyCode.S;
-    //public KeyCode inputLeft = KeyCode.A;
-    //public KeyCode inputRight = KeyCode.D;
-
     [Header("Sprites")]
     public AnimatedSpriteRenderer spriteRendererUp;
     public AnimatedSpriteRenderer spriteRendererDown;
