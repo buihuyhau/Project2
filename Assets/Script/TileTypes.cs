@@ -6,7 +6,8 @@ namespace Assets.Script
         Block = 1,
         Brick = 2,
         Bush = 3,
-        Water = 4
+        Water = 4,
+        Door = 5,
         // Add more tile types as needed
     }
 }
