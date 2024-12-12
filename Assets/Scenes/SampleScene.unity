@@ -600,10 +600,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 19029169287278756, guid: 362524404aa64a644893cfe2cf7ea57c, type: 3}
   numberOfEnemies: 5
-  solidLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  tilemap: {fileID: 1462873506}
 --- !u!4 &330130462
 Transform:
   m_ObjectHideFlags: 0
@@ -1440,6 +1436,7 @@ MonoBehaviour:
   blockTile: {fileID: 11400000, guid: 96d1efde55d175a419f1e45087862b43, type: 2}
   brickTile: {fileID: 11400000, guid: 15a93c1dde1367442ae1f15d3c801d7c, type: 2}
   doorTile: {fileID: 11400000, guid: a86a01586949a044582fc29fab78ff3a, type: 2}
+  mysteryTile: {fileID: 11400000, guid: 54d96be728284fc44811c81650363107, type: 2}
   bushTile: {fileID: 11400000, guid: 2cb07d9e796de334c87021da99b89342, type: 2}
   waterTile: {fileID: 11400000, guid: 60d0858e2d0ae634d885d64c0a7ccfed, type: 2}
   tilemap: {fileID: 1462873506}
