@@ -569,6 +569,52 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &330130460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 330130462}
+  - component: {fileID: 330130461}
+  m_Layer: 0
+  m_Name: Enemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &330130461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330130460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b7ad02f7e41014e8b59f835a2ff8ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 19029169287278756, guid: 362524404aa64a644893cfe2cf7ea57c, type: 3}
+  numberOfEnemies: 5
+--- !u!4 &330130462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330130460}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &357012306
 GameObject:
   m_ObjectHideFlags: 0
@@ -1182,37 +1228,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &603792918
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 603792919}
-  m_Layer: 0
-  m_Name: Enemy
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &603792919
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 603792918}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.993762, y: 4.5696387, z: -0.048977505}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &877353152
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,6 +1436,7 @@ MonoBehaviour:
   blockTile: {fileID: 11400000, guid: 96d1efde55d175a419f1e45087862b43, type: 2}
   brickTile: {fileID: 11400000, guid: 15a93c1dde1367442ae1f15d3c801d7c, type: 2}
   doorTile: {fileID: 11400000, guid: a86a01586949a044582fc29fab78ff3a, type: 2}
+  mysteryTile: {fileID: 11400000, guid: 54d96be728284fc44811c81650363107, type: 2}
   bushTile: {fileID: 11400000, guid: 2cb07d9e796de334c87021da99b89342, type: 2}
   waterTile: {fileID: 11400000, guid: 60d0858e2d0ae634d885d64c0a7ccfed, type: 2}
   tilemap: {fileID: 1462873506}
@@ -12709,4 +12725,4 @@ SceneRoots:
   - {fileID: 877353156}
   - {fileID: 1021116545}
   - {fileID: 564596696}
-  - {fileID: 603792919}
+  - {fileID: 330130462}
