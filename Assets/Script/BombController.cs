@@ -104,7 +104,7 @@ public class BombController : MonoBehaviour
         // If the cell is a brick, destroy it
         if ((TileTypes)cellValue == TileTypes.Brick)
         {
-            MapMatrix.SetCellValue(matrixY, cell.x, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(matrixY, cell.x, (int)TileTypes.Empty); // This line causes the error
             ClearDestructible(position);
             return; // Stop the explosion after destroying a brick
         }

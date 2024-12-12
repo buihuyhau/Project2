@@ -9,23 +9,27 @@ namespace Assets.Script
         public Tile blockTile;
         public Tile brickTile;
         public Tile doorTile;
+        public Tile mysteryTile;
         public RuleTile bushTile;
         public RuleTile waterTile;
         public Tilemap tilemap;
         public Tilemap bushAndWaterTilemap;
         List<RectInt> regions = new List<RectInt>
-            {
-                new RectInt(3, 3, 3, 3),
-                new RectInt(1, 12, 5, 5),
-                new RectInt(1, 22, 5, 5),
-                new RectInt(9, 3, 5, 5),
-                new RectInt(9, 12, 5, 5),
-                new RectInt(9, 22, 5, 5)
-            };
-
-        private void Start()
+        {
+            new RectInt(3, 3, 3, 3),
+            new RectInt(1, 12, 5, 5),
+            new RectInt(1, 22, 5, 5),
+            new RectInt(9, 3, 5, 5),
+            new RectInt(9, 12, 5, 5),
+            new RectInt(9, 22, 5, 5)
+        };
+        private void Awake()
         {
             GenerateRandomMap();
+        }
+        private void Start()
+        {
+            
             CheckAndModifyClosedLoop();
             RenderMap();
             SetMapToCenter();
@@ -106,7 +110,7 @@ namespace Assets.Script
                 {
                     if (MapMatrix.GetCellValue(i, j) == (int)TileTypes.Empty)
                     {
-                        int value = Random.Range((int)TileTypes.Empty, (int)TileTypes.Brick + 1); // Avoid spawning bush and water randomly
+                        int value = Random.Range((int)TileTypes.Empty, (int)TileTypes.Bush); // Avoid spawning bush and water randomly
                         MapMatrix.SetCellValue(i, j, value);
                     }
                 }
@@ -161,6 +165,8 @@ namespace Assets.Script
                     return waterTile;
                 case TileTypes.Door:
                     return doorTile;
+                case TileTypes.Mystery:
+                    return mysteryTile;
                 default:
                     return null;
             }

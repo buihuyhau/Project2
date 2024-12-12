@@ -23,8 +23,7 @@ public class EnemyCtr : MonoBehaviour
     public AnimatedSpriteRenderer spriteRendererMov;
     public AnimatedSpriteRenderer spriteRendererDeath;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         PathFinder = GetComponent<PathFinder>();
         SetInitialPatrolPoint();
@@ -91,7 +90,6 @@ public class EnemyCtr : MonoBehaviour
         Instantiate(ItemPrefab, transform.position, Quaternion.identity);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!isMoving) return;
