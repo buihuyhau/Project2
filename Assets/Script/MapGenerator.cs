@@ -14,22 +14,29 @@ namespace Assets.Script
         public RuleTile waterTile;
         public Tilemap tilemap;
         public Tilemap bushAndWaterTilemap;
+
+        public int maxMysteryTiles = 5; // Giới hạn số lượng mysteryTile
+        public float blockTileMultiplier = 1.1f; // Hệ số tăng số lượng blockTile theo cấp độ
+        public float brickTileMultiplier = 0.9f; // Hệ số giảm số lượng brickTile theo cấp độ
+        private int currentLevel = 1; // Cấp độ hiện tại
+
         List<RectInt> regions = new List<RectInt>
-        {
-            new RectInt(3, 3, 3, 3),
-            new RectInt(1, 12, 5, 5),
-            new RectInt(1, 22, 5, 5),
-            new RectInt(9, 3, 5, 5),
-            new RectInt(9, 12, 5, 5),
-            new RectInt(9, 22, 5, 5)
-        };
+            {
+                new RectInt(3, 3, 3, 3),
+                new RectInt(1, 12, 5, 5),
+                new RectInt(1, 22, 5, 5),
+                new RectInt(9, 3, 5, 5),
+                new RectInt(9, 12, 5, 5),
+                new RectInt(9, 22, 5, 5)
+            };
+
         private void Awake()
         {
             GenerateRandomMap();
         }
+
         private void Start()
         {
-            
             CheckAndModifyClosedLoop();
             RenderMap();
             SetMapToCenter();
@@ -41,6 +48,7 @@ namespace Assets.Script
             CreateRandomClusters(2, 3, 4, (int)TileTypes.Water); // Create 2 random water clusters
             CreateBorders(); // Generate border tiles
             FillEmptyTiles(); // Randomly generate the remaining tiles
+            PlaceMysteryTiles(); // Place mystery tiles in specified regions
             SetSpecificEmptyTiles(); // Set empty tiles at specific positions
         }
 
@@ -110,7 +118,7 @@ namespace Assets.Script
                 {
                     if (MapMatrix.GetCellValue(i, j) == (int)TileTypes.Empty)
                     {
-                        int value = Random.Range((int)TileTypes.Empty, (int)TileTypes.Bush); // Avoid spawning bush and water randomly
+                        int value = Random.Range((int)TileTypes.Empty, (int)TileTypes.Mystery); // Avoid spawning bush and water randomly
                         MapMatrix.SetCellValue(i, j, value);
                     }
                 }
@@ -122,9 +130,48 @@ namespace Assets.Script
             MapMatrix.SetCellValue(1, 1, (int)TileTypes.Empty);
             MapMatrix.SetCellValue(1, 2, (int)TileTypes.Empty);
             MapMatrix.SetCellValue(2, 1, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(MapMatrix.mapHeight - 2, MapMatrix.mapWidth - 2, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(MapMatrix.mapHeight - 2, MapMatrix.mapWidth - 3, (int)TileTypes.Empty);
+            MapMatrix.SetCellValue(MapMatrix.mapHeight - 3, MapMatrix.mapWidth - 2, (int)TileTypes.Empty);
             MapMatrix.SetCellValue(1, 0, (int)TileTypes.Door);
             MapMatrix.SetCellValue(16, 31, (int)TileTypes.Door);
+        }
 
+        private void PlaceMysteryTiles()
+        {
+            List<RectInt> regions = new List<RectInt>
+            {
+                new RectInt(3, 3, 3, 3),
+                new RectInt(1, 12, 5, 5),
+                new RectInt(1, 22, 5, 5),
+                new RectInt(9, 3, 5, 5),
+                new RectInt(9, 12, 5, 5),
+                new RectInt(9, 22, 5, 5)
+            };
+            int mysteryTileCount = 0;
+            foreach (var region in regions)
+            {
+                List<Vector2Int> emptyTiles = new List<Vector2Int>();
+
+                // Tìm tất cả các ô trống trong khu vực
+                for (int i = region.xMin; i < region.xMax; i++)
+                {
+                    for (int j = region.yMin; j < region.yMax; j++)
+                    {
+                        if (MapMatrix.GetCellValue(i, j) == (int)TileTypes.Empty)
+                        {
+                            emptyTiles.Add(new Vector2Int(i, j));
+                        }
+                    }
+                }
+
+
+                int randomIndex = Random.Range(0, emptyTiles.Count);
+                Vector2Int tile = emptyTiles[randomIndex];
+                MapMatrix.SetCellValue(tile.x, tile.y, (int)TileTypes.Mystery);
+                mysteryTileCount++;
+                
+            }
         }
 
         private void RenderMap()
@@ -294,9 +341,18 @@ namespace Assets.Script
                 }
             }
         }
+
         private bool IsBorderTile(int i, int j)
         {
             return i == 0 || i == MapMatrix.mapHeight - 1 || j == 0 || j == MapMatrix.mapWidth - 1;
+        }
+
+        public void IncreaseLevel()
+        {
+            currentLevel++;
+            maxMysteryTiles = Mathf.Max(1, maxMysteryTiles - 1); // Giảm số lượng mysteryTile
+            blockTileMultiplier *= 1.1f; // Tăng hệ số blockTile
+            brickTileMultiplier *= 0.9f; // Giảm hệ số brickTile
         }
     }
 }
