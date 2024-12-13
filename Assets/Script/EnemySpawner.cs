@@ -5,8 +5,8 @@ using UnityEngine.Tilemaps;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;
-    public int numberOfEnemies;
+    public List<GameObject> enemyPrefab;
+    private int numberOfEnemies = 8;
     
 
     private List<Vector3> emptyCells = new List<Vector3>();
@@ -44,7 +44,8 @@ public class EnemySpawner : MonoBehaviour
             int randomIndex = Random.Range(0, emptyCells.Count);
             //Vector3 spawnPosition = emptyCells[randomIndex];
             Vector3 spawnPosition = new Vector3(emptyCells[randomIndex].y - (float)15.5, MapMatrix.mapHeight - (float)9.5 - emptyCells[randomIndex].x, 0);
-            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            int randomEnemy = Random.Range(0, enemyPrefab.Count);
+            Instantiate(enemyPrefab[randomEnemy], spawnPosition, Quaternion.identity);
             emptyCells.RemoveAt(randomIndex);
         }
     }

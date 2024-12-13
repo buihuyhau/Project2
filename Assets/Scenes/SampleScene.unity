@@ -598,8 +598,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2b7ad02f7e41014e8b59f835a2ff8ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 19029169287278756, guid: 362524404aa64a644893cfe2cf7ea57c, type: 3}
-  numberOfEnemies: 5
+  enemyPrefab:
+  - {fileID: 19029169287278756, guid: 362524404aa64a644893cfe2cf7ea57c, type: 3}
+  - {fileID: 19029169287278756, guid: 6dc5098123be4f74b8b6f16004b43e55, type: 3}
+  - {fileID: 19029169287278756, guid: b8b60b7f6fa7a9b4ab38cc1f0ff5dcf9, type: 3}
 --- !u!4 &330130462
 Transform:
   m_ObjectHideFlags: 0
@@ -1441,6 +1443,9 @@ MonoBehaviour:
   waterTile: {fileID: 11400000, guid: 60d0858e2d0ae634d885d64c0a7ccfed, type: 2}
   tilemap: {fileID: 1462873506}
   bushAndWaterTilemap: {fileID: 391061380}
+  maxMysteryTiles: 5
+  blockTileMultiplier: 1.1
+  brickTileMultiplier: 0.9
 --- !u!1 &1016687424
 GameObject:
   m_ObjectHideFlags: 0

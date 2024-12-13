@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 1785462741906188155}
   - component: {fileID: 8577963129351256657}
   - component: {fileID: 315263101977533782}
+  - component: {fileID: 100627384201879846}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Enemy1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51,7 +52,6 @@ MonoBehaviour:
   ItemPrefab: {fileID: 7054010776808984293, guid: 78e4d777b2489904ba2cc7dab7c38d95, type: 3}
   MoveSpeed: 0
   AttackRange: 0
-  PatrolDistance: 0
   spriteRendererMov: {fileID: 6698305988484089767}
   spriteRendererDeath: {fileID: 2016060291056229851}
 --- !u!212 &315263101977533782
@@ -94,8 +94,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -1848787557, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
+  m_SortingOrder: 5
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -103,9 +103,44 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!58 &100627384201879846
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 19029169287278756}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
 --- !u!1 &6337806129874524589
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,7 +214,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -203,15 +238,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b44ec51d23c1a945b35126cfa5a576c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleSprite: {fileID: 0}
+  idleSprite: {fileID: 567400625, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   animationSprites:
   - {fileID: 567400625, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: -1889350129, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: 2102427209, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: 786448425, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   animationTime: 0.1666667
-  loop: 1
-  idle: 1
+  loop: 0
+  idle: 0
 --- !u!1 &6623885738430942821
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,8 +320,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_SortingOrder: 5
+  m_Sprite: {fileID: -1848787557, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -294,7 +329,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &6698305988484089767
@@ -309,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b44ec51d23c1a945b35126cfa5a576c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleSprite: {fileID: 0}
+  idleSprite: {fileID: 1982662542, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   animationSprites:
   - {fileID: 1982662542, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: 598316808, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
@@ -318,6 +353,6 @@ MonoBehaviour:
   - {fileID: 339197547, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: 976046771, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
   - {fileID: -1848787557, guid: 21ad509193689f44aa5dacc1cd2d9d02, type: 3}
-  animationTime: 0.1666667
+  animationTime: 0.22
   loop: 1
-  idle: 1
+  idle: 0
