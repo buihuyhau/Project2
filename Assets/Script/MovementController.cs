@@ -8,7 +8,6 @@ public class MovementController : MonoBehaviour
     public float speed = 5f;
     public Joystick movermentJoystick;
 
-
     [Header("Sprites")]
     public AnimatedSpriteRenderer spriteRendererUp;
     public AnimatedSpriteRenderer spriteRendererDown;
@@ -25,26 +24,39 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
-        if (movermentJoystick.Vertical > 0.5f)
+        Vector2 inputDirection = new Vector2(movermentJoystick.Horizontal, movermentJoystick.Vertical).normalized;
+
+        if (inputDirection != Vector2.zero)
         {
-            SetDirection(Vector2.up, spriteRendererUp);
-        }
-        else if (movermentJoystick.Vertical < -0.5f)
-        {
-            SetDirection(Vector2.down, spriteRendererDown);
-        }
-        else if (movermentJoystick.Horizontal < -0.5f)
-        {
-            SetDirection(Vector2.left, spriteRendererLeft);
-        }
-        else if (movermentJoystick.Horizontal > 0.5f)
-        {
-            SetDirection(Vector2.right, spriteRendererRight);
+            if (Mathf.Abs(inputDirection.x) > Mathf.Abs(inputDirection.y))
+            {
+                if (inputDirection.x > 0)
+                {
+                    SetDirection(Vector2.right, spriteRendererRight);
+                }
+                else
+                {
+                    SetDirection(Vector2.left, spriteRendererLeft);
+                }
+            }
+            else
+            {
+                if (inputDirection.y > 0)
+                {
+                    SetDirection(Vector2.up, spriteRendererUp);
+                }
+                else
+                {
+                    SetDirection(Vector2.down, spriteRendererDown);
+                }
+            }
         }
         else
         {
             SetDirection(Vector2.zero, activeSpriteRenderer);
         }
+
+        direction = inputDirection;
     }
 
     private void FixedUpdate()
@@ -70,7 +82,8 @@ public class MovementController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Explosion")) {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Explosion"))
+        {
             DeathSequence();
         }
     }
@@ -92,7 +105,13 @@ public class MovementController : MonoBehaviour
     private void OnDeathSequenceEnded()
     {
         gameObject.SetActive(false);
-        GameManager.Instance.CheckWinState();
+        LoadGameOverUI();
+        //GameManager.Instance.CheckWinState();
     }
-
+    public GameObject gameOverUI;
+    protected void LoadGameOverUI()
+    {
+        Time.timeScale = 0f;
+        gameOverUI.SetActive(true);
+    }
 }
